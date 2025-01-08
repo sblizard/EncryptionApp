@@ -1,14 +1,11 @@
+'use client';
+
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { generatekeys } from "@/create user/generatekeys";
-
-type User = {
-    id: string;
-    created_at: string;
-    email: string;
-    RSA_prime_1: number | null;
-    RSA_prime_2: number | null;
-};
+import Greeting from "./components/Greeting";
+import ConversationList from "./components/ConversationList";
+import { User, RSAUser, Message } from "./components/types";
 
 export default async function ProtectedPage() {
     const supabase = await createClient();
@@ -20,6 +17,36 @@ export default async function ProtectedPage() {
     if (!user) {
         return redirect("/sign-in");
     }
+
+    const { data: messageData, error: messageError } = await supabase
+        .from('messages')
+        .select()
+        .or(`to_user.eq.${user.id},from_user.eq.${user.id}`)
+        .order('sent_at', { ascending: true })
+
+    if (messageError) {
+        console.error("Error fetching messages:", messageError);
+    } else {
+        // console.log("Messages:", messageData);
+    }
+
+    const messages: Message[] = JSON.parse(JSON.stringify(messageData));
+
+    console.log("Messages:", messages);
+
+    const users = await supabase
+        .from('RSA_public_keys')
+        .select("*");
+
+    let usersList: RSAUser[] = [];
+
+    if (users.data) {
+        for (let i = 0; i < users.data.length; i++) {
+            usersList.push(JSON.parse(JSON.stringify(users.data[i])));
+        }
+    }
+
+    console.log("Users:", usersList);
 
     const { data, error } = await supabase
         .from("users")
@@ -35,24 +62,17 @@ export default async function ProtectedPage() {
         const dbUser: User = data[0];
 
         if (dbUser.RSA_prime_1 === null || dbUser.RSA_prime_2 === null) {
-            console.log("Generating keys");
+            // console.log("Generating keys");
             await generatekeys(dbUser.id);
         } else {
-            console.log("Keys already exist");
+            // console.log("Keys already exist");
         }
 
-        const rsa1 = dbUser.RSA_prime_1;
-        const rsa2 = dbUser.RSA_prime_2;
-
         return (
-            <div className="flex-1 w-full flex flex-col gap-12">
-                <h1 className="text-2xl font-medium">Protected Page</h1>
-                <h2>Private keys:</h2>
-                <p>{rsa1}, {rsa2}</p>
-
-                <pre className="text-xs font-mono p-3 rounded border max-h-32 overflow-auto">
-          {JSON.stringify(user, null, 2)}
-        </pre>
+            <div className="dashboard-container flex flex-col gap-8 p-6">
+                <Greeting userName={user.email ? user.email : "cryptologist"}/>
+                <h2 className="text-xl font-medium">Your RSA Encrypted Conversations:</h2>
+                <ConversationList conversations={usersList}/>
             </div>
         );
     } else {
