@@ -1,5 +1,3 @@
-'use client';
-
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { generatekeys } from "@/create user/generatekeys";
