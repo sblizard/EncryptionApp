@@ -16,7 +16,7 @@ export type Message = {
     id: number;
     from_user: string;
     to_user: string;
-    message: string;
+    message_text: string;
     sent_at: string;
     policy: string;
 }
