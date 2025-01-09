@@ -43,7 +43,7 @@ export default async function Chat({
 
     // Fetch sent and received messages
     const { data: sentMessagesData } = await supabase
-        .from("messages")
+        .from("sent_messages")
         .select()
         .eq("from_user", friend.id)
         .eq("to_user", userId)

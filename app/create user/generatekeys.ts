@@ -86,7 +86,7 @@ function eulerTotient(p: number, q: number) {
     return (p - 1) * (q - 1);
 }
 
-function modularExponentiation(base: number, exponent: number, modulus: number): number {
+export function modularExponentiation(base: number, exponent: number, modulus: number): number {
     if (modulus === 1) return 0;
     let result = 1;
     base = base % modulus;

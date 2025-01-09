@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
-import { generatekeys } from "@/create user/generatekeys";
+import { generatekeys } from "../create user/generatekeys";
 import Greeting from "./components/Greeting";
 import ConversationList from "./components/ConversationList";
 import { User, RSAUser, Message } from "./components/types";
