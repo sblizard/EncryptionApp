@@ -61,7 +61,7 @@ export default async function ProtectedPage() {
 
         if (dbUser.RSA_prime_1 === null || dbUser.RSA_prime_2 === null) {
             // console.log("Generating keys");
-            await generatekeys(dbUser.id);
+            await generatekeys(dbUser.id, dbUser.email);
         } else {
             // console.log("Keys already exist");
         }
