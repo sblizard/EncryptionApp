@@ -21,8 +21,8 @@ export async function generatekeys(uuid: string, email: string) {
     console.log("public key: ", publicKey)
 
     while (gcdStein(eulerTotient(prime1, prime2), 65537) !== 1) {
-        prime1 = values[Math.floor(Math.random() * 203 + 100)]
-        prime2 = values[Math.floor(Math.random() * 203 + 100)]
+        prime1 = values[Math.floor(Math.random() * 203 + 100)];
+        prime2 = values[Math.floor(Math.random() * 203 + 100)];
     }
 
     const supabase = await createClient();
@@ -82,7 +82,7 @@ function gcdStein(a: number, b: number) {
     return a << shift;
 }
 
-function eulerTotient(p: number, q: number) {
+export function eulerTotient(p: number, q: number) {
     return (p - 1) * (q - 1);
 }
 

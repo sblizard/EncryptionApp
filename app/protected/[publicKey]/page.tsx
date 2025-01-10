@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { User, Message } from "@/app/protected/components/types";
 import { redirect } from "next/navigation";
+import {decryptRSA} from "../../RSA/decrypt";
 
 export default async function Chat({
                                        params,
@@ -60,9 +61,52 @@ export default async function Chat({
     const receivedMessages = receivedMessagesData || [];
 
     // Combine and sort messages
-    const messageHistory = [...sentMessages, ...receivedMessages].sort(
+    let messageHistory = [...sentMessages, ...receivedMessages].sort(
         (a, b) => new Date(a.sent_at).getTime() - new Date(b.sent_at).getTime()
     );
+
+    const { data: currentUserData, error: currentUserError } = await supabase
+        .from("users")
+        .select()
+        .eq("id", userId);
+
+    let prime1 = 1;
+    let prime2 = 1;
+
+    if (currentUserError) {
+        console.error("Error fetching user data:", currentUserError);
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+                <div className="bg-card shadow-md rounded-lg p-6 text-center">
+                    <h1 className="text-2xl font-bold text-destructive">Chat</h1>
+                    <p className="text-muted-foreground mt-2">
+                        Could not find user with id:{" "}
+                        <span className="font-mono text-primary">{userId}</span>
+                    </p>
+                </div>
+            </div>
+        );
+    } else {
+        prime1 = currentUserData[0].RSA_prime_1;
+        prime2 = currentUserData[0].RSA_prime_2;
+    }
+
+
+    let decryptedMessages: Message[] = [];
+
+    for (let i = 0; i < messageHistory.length; i++) {
+        let msg = messageHistory[i];
+        let decryptedMessage = decryptRSA(msg.message_text, prime1, prime2);
+        const decryptedMessageObj: Message = {
+            id: msg.id,
+            from_user: msg.from_user,
+            to_user: msg.to_user,
+            message_text: decryptedMessage,
+            sent_at: msg.sent_at,
+            policy: 'RSA',
+        }
+        decryptedMessages.push(decryptedMessageObj);
+    }
 
     return (
         <div className="min-h-screen bg-background text-foreground p-6">
@@ -76,11 +120,11 @@ export default async function Chat({
                         <span className="font-mono text-primary">{publicKey}</span>
                     </p>
                     <div className="mt-6">
-                        {messageHistory.length === 0 ? (
+                        {decryptedMessages.length === 0 ? (
                             <p className="text-muted-foreground">No messages yet.</p>
                         ) : (
                             <ul className="space-y-4">
-                                {messageHistory.map((msg) => (
+                                {decryptedMessages.map((msg) => (
                                     <li
                                         key={msg.id}
                                         className={`p-4 rounded-lg ${

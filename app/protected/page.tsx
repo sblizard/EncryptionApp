@@ -44,7 +44,7 @@ export default async function ProtectedPage() {
         }
     }
 
-    console.log("Users:", usersList);
+    // console.log("Users:", usersList);
 
     const { data, error } = await supabase
         .from("users")
