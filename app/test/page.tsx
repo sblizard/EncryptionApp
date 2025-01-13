@@ -13,7 +13,7 @@ export default function ProtectedPage() {
     console.log("Private Exponent (d):", d);
 
     // Encrypt
-    const encrypted: bigint[] = encrypt(message, e, n);
+    const encrypted: string = encrypt(message, e, n);
     console.log("Encrypted (ciphertext):", encrypted);
 
     // Decrypt
@@ -24,6 +24,7 @@ export default function ProtectedPage() {
         <div>
             <h1>Testing RSA</h1>
             <p>Original Message: {message}</p>
+            <p>Encrypted Message: {encrypted}</p>
             <p>Decrypted Message: {decrypted}</p>
         </div>
     );

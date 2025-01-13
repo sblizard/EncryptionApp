@@ -1,25 +1,14 @@
-import { modularExponentiation } from "@/app/create user/generatekeys";
-
-export function encryptRSA(message: string, publicKey: number, decryptionExponent: number) {
-    let cypherText: string = ""
-
-    for (let i = 0; i < message.length; i++) {
-        let charCode = message.charCodeAt(i);
-        let encrypted = modularExponentiation(charCode, publicKey, publicKey);
-        console.log("encrypted: ", encrypted)
-        cypherText += String.fromCharCode(encrypted)
-    }
-
-    console.log("cypherText: ", cypherText);
-
-    return cypherText;
-}
-
-export function encrypt(message: string, e: bigint, n: bigint): bigint[] {
-    return Array.from(message).map((char) => {
+// Encrypts a message using the RSA algorithm
+// @param message The message to encrypt
+// @param e The public exponent
+// @param n The public key
+export function encrypt(message: string, e: bigint, n: bigint): string {
+    let encryptedMessage = '';
+    Array.from(message).map((char) => {
         const charCode = BigInt(char.charCodeAt(0));
-        return power(charCode, e, n);
+        encryptedMessage += power(charCode, e, n) + ",";
     });
+    return encryptedMessage.substring(0, encryptedMessage.length - 1);
 }
 
 export function power(base: bigint, expo: bigint, mod: bigint): bigint {

@@ -1,5 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
-import {encryptRSA} from "@/app/RSA/encrypt";
+import { encrypt } from "@/app/RSA/encrypt";
 
 export async function POST(req: Request) {
     const supabase = await createClient();
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
             friendDecryptionExponent = friendEncryptData[0].decryption_exponent;
         }
 
-        let friendCypherText: string = encryptRSA(messageText, friendPublicKey, friendDecryptionExponent);
+        let friendCypherText = encrypt(messageText, 65537n, BigInt(friendPublicKey));
 
         // Insert message into the database
         const { error } = await supabase.from("messages").insert({
@@ -88,7 +88,7 @@ export async function POST(req: Request) {
             selfDecryptionExponent = selfEncryptData[0].decryption_exponent;
         }
 
-        let selfCypherText: string = encryptRSA(messageText, selfPublicKey, selfDecryptionExponent);
+        let selfCypherText: string = encrypt(messageText, 65537n, BigInt(selfPublicKey));
 
         const { error: sentMessageError } = await supabase.from("sent_messages").insert({
             from_user: userId,

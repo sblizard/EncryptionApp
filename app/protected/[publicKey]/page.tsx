@@ -1,7 +1,8 @@
 import { createClient } from "@/utils/supabase/server";
 import { User, Message } from "@/app/protected/components/types";
 import { redirect } from "next/navigation";
-import {decryptRSA} from "../../RSA/decrypt";
+import { decrypt } from "../../RSA/decrypt";
+import {calculatePrivateExponent} from "@/app/RSA/encrypt";
 
 export default async function Chat({
                                        params,
@@ -91,12 +92,14 @@ export default async function Chat({
         prime2 = currentUserData[0].RSA_prime_2;
     }
 
+    let privateExponent: bigint = calculatePrivateExponent(65537n, BigInt(prime1 - 1) * BigInt(prime2 - 1));
 
     let decryptedMessages: Message[] = [];
 
     for (let i = 0; i < messageHistory.length; i++) {
         let msg = messageHistory[i];
-        let decryptedMessage = decryptRSA(msg.message_text, prime1, prime2);
+        let decryptedMessage = decrypt(msg.message_text, privateExponent, BigInt(prime1 * prime2));
+        console.log("decryptedMessage: ", decryptedMessage);
         const decryptedMessageObj: Message = {
             id: msg.id,
             from_user: msg.from_user,
