@@ -24,6 +24,7 @@ export async function POST(req: Request) {
         const { messageText, userId, friendId, redirectUrl } = body;
 
         if (!messageText || !userId || !friendId || !redirectUrl) {
+            console.log("Missing required fields\nmessageText: ", messageText, "\nuserId: ", userId, "\nfriendId: ", friendId, "\nredirectUrl: ", redirectUrl);
             return new Response(
                 JSON.stringify({ error: "Missing required fields" }),
                 { status: 400 }

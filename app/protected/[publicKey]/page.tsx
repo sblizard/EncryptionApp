@@ -113,42 +113,72 @@ export default async function Chat({
 
     return (
         <div className="min-h-screen bg-background text-foreground p-6">
-            <div className="max-w-4xl mx-auto bg-card shadow-md rounded-lg p-6 flex flex-col h-full">
-                <div className="flex-1 overflow-auto">
-                    <h1 className="text-3xl font-bold mb-4">
-                        Chat with {friend.email}
-                    </h1>
-                    <p className="text-sm text-muted-foreground">
-                        Public Key:{" "}
-                        <span className="font-mono text-primary">{publicKey}</span>
-                    </p>
-                    <div className="mt-6">
-                        {decryptedMessages.length === 0 ? (
-                            <p className="text-muted-foreground">No messages yet.</p>
-                        ) : (
-                            <ul className="space-y-4">
-                                {decryptedMessages.map((msg) => (
-                                    <li
-                                        key={msg.id}
-                                        className={`p-4 rounded-lg ${
-                                            msg.from_user === userId
-                                                ? "bg-muted text-muted-foreground self-end"
-                                                : "bg-primary text-primary-foreground self-start"
-                                        }`}
-                                    >
-                                        <p className="text-sm">
-                                            {msg.from_user === userId
-                                                ? "You"
-                                                : friend.email}
-                                            : {msg.message_text}
-                                        </p>
-                                        <span className="block text-xs text-muted-foreground mt-1">
-                                            {new Date(msg.sent_at).toLocaleString()}
-                                        </span>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
+            <div className="max-w-6xl mx-auto bg-card shadow-md rounded-lg p-6 flex flex-col h-full">
+                <h1 className="text-3xl font-bold mb-4 text-center">
+                    Chat with {friend.email}
+                </h1>
+                <p className="text-sm text-muted-foreground text-center mb-6">
+                    Public Key:{" "}
+                    <span className="font-mono text-primary">{publicKey}</span>
+                </p>
+
+                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6 overflow-hidden mb-10">
+                    {/* Encrypted Messages Column */}
+                    <div className="flex flex-col">
+                        <h2 className="text-xl font-semibold mb-3 text-center">Encrypted Messages</h2>
+                        <div className="flex-1 bg-muted p-4 rounded-lg shadow-inner overflow-y-auto">
+                            {messageHistory.length === 0 ? (
+                                <p className="text-muted-foreground text-center">No messages yet.</p>
+                            ) : (
+                                <ul className="space-y-4">
+                                    {messageHistory.map((msg) => (
+                                        <li
+                                            key={msg.id}
+                                            className="p-4 bg-muted-light rounded-lg border border-muted-foreground break-words whitespace-normal"
+                                        >
+                                            <p className="text-sm font-bold">
+                                                {msg.from_user === userId ? "You" : friend.email}
+                                            </p>
+                                            <p className="font-mono text-primary mt-1 break-words whitespace-normal">
+                                                {msg.message_text}
+                                            </p>
+                                            <span className="block text-xs text-muted-foreground mt-1">
+                                {new Date(msg.sent_at).toLocaleString()}
+                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Decrypted Messages Column */}
+                    <div className="flex flex-col">
+                        <h2 className="text-xl font-semibold mb-3 text-center">Decrypted Messages</h2>
+                        <div className="flex-1 bg-primary p-4 rounded-lg shadow-inner overflow-y-auto">
+                            {decryptedMessages.length === 0 ? (
+                                <p className="text-primary-foreground text-center">No messages yet.</p>
+                            ) : (
+                                <ul className="space-y-4">
+                                    {decryptedMessages.map((msg) => (
+                                        <li
+                                            key={msg.id}
+                                            className="p-4 bg-primary-light rounded-lg border border-primary-foreground text-primary-foreground break-words whitespace-normal"
+                                        >
+                                            <p className="text-sm font-bold">
+                                                {msg.from_user === userId ? "You" : friend.email}
+                                            </p>
+                                            <p className="mt-1 break-words whitespace-normal">
+                                                {msg.message_text}
+                                            </p>
+                                            <span className="block text-xs text-primary-foreground mt-1">
+                                {new Date(msg.sent_at).toLocaleString()}
+                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -156,14 +186,14 @@ export default async function Chat({
                 <form
                     action={`/protected/${publicKey}/send`}
                     method="post"
-                    className="mt-4 flex gap-2"
+                    className="mt-4 flex gap-3"
                 >
                     <input type="hidden" name="userId" value={userId}/>
                     <input type="hidden" name="friendId" value={friend.id}/>
                     <input type="hidden" name="redirectUrl" value={`/protected/${publicKey}`}/>
                     <input
-                    type="text"
-                    name="messageText"
+                        type="text"
+                        name="messageText"
                         placeholder="Type your message..."
                         required
                         className="flex-1 px-4 py-2 border rounded-lg bg-muted text-muted-foreground placeholder-muted-foreground"
